@@ -2,7 +2,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.io import wavfile
 from scipy.signal import butter, filtfilt
+import sys
 
+old_stdout = sys.stdout
+log_file = open("message.log","w")
+sys.stdout = log_file
 
 # normalize function
 def norm(data, simple=False):
@@ -63,18 +67,21 @@ def threshold_keyframes(rms, threshold):
 
 
 # read file
-samplerate, signal = wavfile.read("test/temp1.wav")
+samplerate, signal = wavfile.read("test/4_words.wav")
 
 signal = norm(np.array(signal, dtype=np.float64))
 
 ########-RMS-#########
 rms = np.zeros_like(signal)
 buffer_size = 1000
+list_a=[]
 
 for i in range(0, len(signal), buffer_size):
     s = signal[i:i + buffer_size]
+    if max(s)>0.18:
+        list_a.append(i)
     rms[i:i + buffer_size] = np.sqrt(np.mean(s ** 2))
-
+print(list_a)
 # smooth...
 cutoff = 20
 normal_cutoff = cutoff / (44100 / 2)
@@ -89,8 +96,8 @@ keyframes = threshold_keyframes(rms, threshold)
 g = gates(signal, segments(keyframes, flip_order), 50)
 
 ### flate edges #####
-##g = flat_edge(g, keyframes, True)
-##g = flat_edge(g, keyframes, False)
+g = flat_edge(g, keyframes, True)
+g = flat_edge(g, keyframes, False)
 
 
 ## gate signal
@@ -110,6 +117,9 @@ plt.axhline(y=threshold, color="green")
 
 plt.show()
 
+sys.stdout = old_stdout
+
+log_file.close()
 # write to file
 # gated *= 32767
 # gated = np.int16(gated)
