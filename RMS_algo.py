@@ -117,9 +117,9 @@ plt.axhline(y=threshold, color="green")
 
 plt.show()
 
-sys.stdout = old_stdout
+# sys.stdout = old_stdout
 
-log_file.close()
+# log_file.close()
 # write to file
 # gated *= 32767
 # gated = np.int16(gated)
