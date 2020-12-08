@@ -74,7 +74,7 @@ def threshold_keyframes(rms, threshold):
 
 # read file
 
-samplerate, signal = wavfile.read(r"C:\Users\Eden\Desktop\MATAN\limudim\antenot\part3.wav")
+samplerate, signal = wavfile.read(r"C:\Users\Eden\Desktop\temp\take1.wav")
 # signal = signal[:0]
 signal = norm(np.array(signal, dtype=np.float64))
 
@@ -112,24 +112,15 @@ for i in range(0,len(list_words),2):
     len_of_audio=50000 #samples
     Calc = stop  - start
     if Calc<len_of_audio:
-       off_set =int(Calc/2)
+
+       off_set =int((len_of_audio-Calc)/2)
        start = start-off_set
        stop = stop+off_set
 
     Data = signal[start : stop]
-    sf.write(os.path.join(r'C:\Users\Eden\Desktop\MATAN\limudim\antenot','word'+str(s)+'.wav'), Data, samplerate)
+    sf.write(os.path.join(r'C:\Users\Eden\Desktop\temp','word'+str(s)+'.wav'), Data, samplerate)
     s = s+1
 
-
-
-# for j in range(len(list_words)):
-#     index.append(yellow_list.index(list_words[j]))
-#
-# for k in range(len(index) - 1):
-#     split_words.append([index[k] + 1, index[k + 1]])
-#
-# for l in range(len(index)):
-#     all_data.append(yellow_list[index[l]])
 
 
 
@@ -167,15 +158,3 @@ plt.axhline(y=threshold, color="green", label='Threshold')
 
 plt.legend()
 plt.show()
-
-
-
-
-# write to file
-# gated *= 32767
-# gated = np.int16(gated)
-# wavfile.write("test/new_matan.wav", 44100, gated)
-
-
-# sys.stdout = old_stdout
-# log_file.close()
