@@ -8,13 +8,6 @@ import soundfile as sf
 
 
 
-
-
-# old_stdout = sys.stdout
-# log_file = open(os.path.join(r'C:\Users\Eden\PycharmProjects\final_project', 'logfile.log'), 'w')
-# sys.stdout = log_file
-
-
 def norm(data, simple=False):
     min_v = min(data)
     max_v = max(data)
@@ -51,7 +44,7 @@ def segments(keyframes, First=True):
     return [(keyframes[i], keyframes[i + 1]) for i in range(int(not First), len(keyframes) - 1, 2)]
 
 
-def threshold_keyframes(rms, threshold):
+def threshold_keyframes(signal,rms, threshold):
     keyframes = [0]
     lastkeyframewasUp = False
 
@@ -72,92 +65,91 @@ def threshold_keyframes(rms, threshold):
     return keyframes
 
 
-# read file
+def Preprocess_Signal(main_dir):
+    samplerate, signal = wavfile.read(r"C:\Users\Eden\Desktop\temp\take1.wav")
+    # signal = signal[:0]
+    signal = norm(np.array(signal, dtype=np.float64))
 
-samplerate, signal = wavfile.read(r"C:\Users\Eden\Desktop\temp\take1.wav")
-# signal = signal[:0]
-signal = norm(np.array(signal, dtype=np.float64))
-
-########-RMS-#########
-rms = np.zeros_like(signal)
-buffer_size = 1000
-yellow_list=[]
-
-for i in range(0, len(signal), buffer_size):
-    s = signal[i:i + buffer_size]
-    if max(s) >= 0.07:
-        yellow_list.append(i)
-    rms[i:i + buffer_size] = np.sqrt(np.mean(s ** 2))
+    ########-RMS-#########
+    rms = np.zeros_like(signal)
+    buffer_size = 1000
+    yellow_list = []
 
 
+    for i in range(0, len(signal), buffer_size):
+        s = signal[i:i + buffer_size]
+        if max(s) >= 0.07:
+            yellow_list.append(i)
+        rms[i:i + buffer_size] = np.sqrt(np.mean(s ** 2))
+
+    list_words = []
+    for i in range(len(yellow_list) - 1):
+        if (yellow_list[i + 1] - yellow_list[i]) > 30000:
+            # print(yellow_list[i]/44100)
+            list_words.append(yellow_list[i])
+            list_words.append(yellow_list[i + 1])
+
+    list_words.append(yellow_list[-1])
+    list_words.insert(0, yellow_list[0])
+
+    s = 0
+    for i in range(0, len(list_words), 2):
+        start = list_words[i]
+        stop = list_words[i + 1]
+
+        len_of_audio = 50000  # samples
+        Calc = stop - start
+        if Calc < len_of_audio:
+            off_set = int((len_of_audio - Calc) / 2)
+            start = start - off_set
+            stop = stop + off_set
+
+        Data = signal[start: stop]
+        sf.write(os.path.join(r'C:\Users\Eden\Desktop\temp', 'word' + str(s) + '.wav'), Data, samplerate)
+        s = s + 1
+
+    cutoff = 20
+    normal_cutoff = cutoff / (44100 / 2)
+    b, a = butter(2, normal_cutoff, btype="low", analog=False)
+    rms = filtfilt(b, a, rms)
+
+    # calculate gate
+    threshold = 0.07
+    flip_order = True
+
+    keyframes = threshold_keyframes(signal,rms, threshold)
+    g = gates(signal, segments(keyframes, flip_order), 50)
+
+    ### flate edges #####
+    g = flat_edge(g, keyframes, True)
+    g = flat_edge(g, keyframes, False)
+
+    ## gate signal
+    gated = signal * g
+
+    plot_graphs(signal, gated, g, rms, threshold)
 
 
 
-list_words = []
-for i in range(len(yellow_list)-1):
-    if(yellow_list[i+1]-yellow_list[i])>30000:
-        # print(yellow_list[i]/44100)
-        list_words.append(yellow_list[i])
-        list_words.append(yellow_list[i+1])
+def plot_graphs(signal,gated,g,rms,threshold):
+    ######## Draw ##########
+    plt.plot(range(len(signal)), signal, "black")
+    plt.plot(range(len(signal)), gated, "pink")
 
+    plt.plot(range(len(signal)), g, "yellow", label="Above or Below the threshold line")
+    plt.plot(range(len(signal)), rms, "red", label="Root Mean Squre")
 
-list_words.append(yellow_list[-1])
-list_words.insert(0,yellow_list[0])
+    plt.xlabel('Samples')
+    plt.ylabel('RMS')
 
-s = 0
-for i in range(0,len(list_words),2):
-    start = list_words[i]
-    stop = list_words[i+1]
+    plt.axhline(y=threshold, color="green", label='Threshold')
 
-    len_of_audio=50000 #samples
-    Calc = stop  - start
-    if Calc<len_of_audio:
-
-       off_set =int((len_of_audio-Calc)/2)
-       start = start-off_set
-       stop = stop+off_set
-
-    Data = signal[start : stop]
-    sf.write(os.path.join(r'C:\Users\Eden\Desktop\temp','word'+str(s)+'.wav'), Data, samplerate)
-    s = s+1
+    plt.legend()
+    plt.show()
 
 
 
-
-cutoff = 20
-normal_cutoff = cutoff / (44100 / 2)
-b, a = butter(2, normal_cutoff, btype="low", analog=False)
-rms = filtfilt(b, a, rms)
-
-# calculate gate
-threshold = 0.07
-flip_order = True
-
-keyframes = threshold_keyframes(rms, threshold)
-g = gates(signal, segments(keyframes, flip_order), 50)
-
-### flate edges #####
-g = flat_edge(g, keyframes, True)
-g = flat_edge(g, keyframes, False)
-
-
-## gate signal
-gated = signal * g
-
-######## Draw ##########
-plt.plot(range(len(signal)), signal, "black")
-plt.plot(range(len(signal)), gated, "pink")
-
-plt.plot(range(len(signal)), g, "yellow", label="Above or Below the threshold line")
-plt.plot(range(len(signal)), rms, "red", label="Root Mean Squre")
-
-plt.xlabel('Samples')
-plt.ylabel('RMS')
-
-plt.axhline(y=threshold, color="green", label='Threshold')
-
-plt.legend()
-plt.show()
-
-
+if __name__ == '__main__':
+    main_dir = r"C:\Users\Eden\Desktop\temp\take1.wav"
+    Preprocess_Signal(main_dir)
 
