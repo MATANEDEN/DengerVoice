@@ -2,7 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.io import wavfile
 from scipy.signal import butter, filtfilt
-import sys
 import os
 import soundfile as sf
 
@@ -66,7 +65,7 @@ def threshold_keyframes(signal,rms, threshold):
 
 
 def Preprocess_Signal(main_dir):
-    samplerate, signal = wavfile.read(r"C:\Users\Eden\Desktop\temp\take1.wav")
+    samplerate, signal = wavfile.read(main_dir)
     # signal = signal[:0]
     signal = norm(np.array(signal, dtype=np.float64))
 
@@ -105,13 +104,15 @@ def Preprocess_Signal(main_dir):
             stop = stop + off_set
 
         Data = signal[start: stop]
-        sf.write(os.path.join(r'C:\Users\Eden\Desktop\temp', 'word' + str(s) + '.wav'), Data, samplerate)
+        folder_path = os.path.dirname(main_dir)
+        sf.write(os.path.join(folder_path , 'word' + str(s) + '.wav'), Data, samplerate)
         s = s + 1
 
     cutoff = 20
     normal_cutoff = cutoff / (44100 / 2)
     b, a = butter(2, normal_cutoff, btype="low", analog=False)
     rms = filtfilt(b, a, rms)
+#something
 
     # calculate gate
     threshold = 0.07
@@ -150,6 +151,6 @@ def plot_graphs(signal,gated,g,rms,threshold):
 
 
 if __name__ == '__main__':
-    main_dir = r"C:\Users\Eden\Desktop\temp\take1.wav"
+    main_dir = r"C:\Users\Eden\Desktop\temp\part1.wav"
     Preprocess_Signal(main_dir)
 
