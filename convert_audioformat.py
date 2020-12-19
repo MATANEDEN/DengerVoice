@@ -1,14 +1,13 @@
 from pydub import AudioSegment
 
 
-ogg_file = r'C:\Users\Eden\Desktop\my_new_proj\20_words.ogg'
-wav_file = r'C:\Users\Eden\Desktop\my_new_proj\200_words.wav'
 
-# wave and raw don’t use ffmpeg
-wav_audio = AudioSegment.from_file(r"C:\Users\Eden\Desktop\my_new_proj\20_words.ogg", format="ogg")
-raw_audio = AudioSegment.from_file(r"C:\Users\Eden\Desktop\my_new_proj\20_words.ogg", format="ogg",
-                                   frame_rate=44100, channels=2, sample_width=2)
+def convert_audio_format(ogg_path):
 
-wav_audio.export(r'C:\Users\Eden\Desktop\my_new_proj\200_words.wav', format="wav")
-raw_audio.export(r'C:\Users\Eden\Desktop\my_new_proj\200_words.wav', format="wav")
-#
+    wav_audio = AudioSegment.from_file(ogg_path, format="ogg")
+
+    wav_audio.export(ogg_path.replace('ogg','wav'), format="wav")
+
+if __name__ == '__main__':
+    ogg_path = r'C:\Users\dev2\Downloads\a\part1.ogg'
+    convert_audio_format(ogg_path)
