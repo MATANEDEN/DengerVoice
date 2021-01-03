@@ -149,8 +149,3 @@ def plot_graphs(signal,gated,g,rms,threshold):
     plt.show()
 
 
-
-if __name__ == '__main__':
-    main_dir = r"C:\Users\Eden\Desktop\temp\part1.wav"
-    Preprocess_Signal(main_dir)
-
