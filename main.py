@@ -1,16 +1,18 @@
-# This is a sample Python script.
+import os
+# from convert_audioformat import convert_audio_format
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-
-
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+from RMS_algo import Preprocess_Signal
 
 
-# Press the green button in the gutter to run the script.
+
+
+
 if __name__ == '__main__':
-    print_hi('PyCharm')
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    # ogg_path = r'C:\Users\Eden\Downloads\a\part1.ogg'
+    # convert_audio_format(ogg_path)
+
+    main_dir =  ogg_path.replace('ogg','wav')
+    Preprocess_Signal(main_dir)
+
+
