@@ -2,6 +2,7 @@ import tkinter as tk
 from PIL import Image, ImageTk
 from tkinter.filedialog import askopenfile
 from main import main_func
+from tkinter import filedialog
 
 root = tk.Tk()
 
@@ -22,12 +23,11 @@ instructions.grid(columnspan=3, column=0, row=1)
 
 def open_file():
     browse_text.set("loading...")
+    # input = filedialog.askopenfile(initialdir="/")
+    input  = filedialog.askopenfile(parent=root, title="Choose a file", filetype=[("ogg file", "*.ogg")])
+    file = input.name
 
-    file = askopenfile(parent=root, title="Choose a file", filetype=[("ogg file", "*.ogg")])
-
-    # if file:
-
-    main_func()
+    main_func(file)
 
     browse_text.set("Browse")
 
