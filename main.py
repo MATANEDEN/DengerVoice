@@ -5,14 +5,12 @@ from keyword_spotting_service import Keyword_Spotting_Service
 from Alert import alert_massage
 
 
-def main_func():
-
+def main_func(file):
     list_text = []
     dangerous_word = 'left'
-    ogg_path = r'C:\Users\dev2\Downloads\baras\baras.ogg'
-    convert_audio_format(ogg_path)
+    convert_audio_format(file)
 
-    main_dir =  ogg_path.replace('ogg','wav')
+    main_dir =  file.replace('ogg','wav')
     Preprocess_Signal(main_dir)
 
     files  = order_files_by(main_dir)
