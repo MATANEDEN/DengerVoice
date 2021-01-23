@@ -13,13 +13,6 @@ LEARNING_RATE = 0.0001
 
 
 def load_data(data_path):
-    """Loads training dataset from json file.
-
-    :param data_path (str): Path to json file containing data
-    :return X (ndarray): Inputs
-    :return y (ndarray): Targets
-
-    """
     with open(data_path, "r") as fp:
         data = json.load(fp)
 
@@ -30,19 +23,6 @@ def load_data(data_path):
 
 
 def prepare_dataset(data_path, test_size=0.2, validation_size=0.2):
-    """Creates train, validation and test sets.
-
-    :param data_path (str): Path to json file containing data
-    :param test_size (flaot): Percentage of dataset used for testing
-    :param validation_size (float): Percentage of train set used for cross-validation
-
-    :return X_train (ndarray): Inputs for the train set
-    :return y_train (ndarray): Targets for the train set
-    :return X_validation (ndarray): Inputs for the validation set
-    :return y_validation (ndarray): Targets for the validation set
-    :return X_test (ndarray): Inputs for the test set
-    :return X_test (ndarray): Targets for the test set
-    """
 
     # load dataset
     X, y = load_data(data_path)
@@ -60,14 +40,6 @@ def prepare_dataset(data_path, test_size=0.2, validation_size=0.2):
 
 
 def build_model(input_shape, loss="sparse_categorical_crossentropy", learning_rate=0.0001):
-    """Build neural network using keras.
-
-    :param input_shape (tuple): Shape of array representing a sample train. E.g.: (44, 13, 1)
-    :param loss (str): Loss function to use
-    :param learning_rate (float):
-
-    :return model: TensorFlow model
-    """
 
     # build network architecture using convolutional layers
     model = tf.keras.models.Sequential()
@@ -98,7 +70,7 @@ def build_model(input_shape, loss="sparse_categorical_crossentropy", learning_ra
     # softmax output layer
     model.add(tf.keras.layers.Dense(10, activation='softmax'))
 
-    optimiser = tf.optimizers.Adam(learning_rate=learning_rate)
+    optimiser = tf.keras.optimizers.Adam(learning_rate=learning_rate)
 
     # compile model
     model.compile(optimizer=optimiser,
@@ -112,18 +84,7 @@ def build_model(input_shape, loss="sparse_categorical_crossentropy", learning_ra
 
 
 def train(model, epochs, batch_size, patience, X_train, y_train, X_validation, y_validation):
-    """Trains model
 
-    :param epochs (int): Num training epochs
-    :param batch_size (int): Samples per batch
-    :param patience (int): Num epochs to wait before early stop, if there isn't an improvement on accuracy
-    :param X_train (ndarray): Inputs for the train set
-    :param y_train (ndarray): Targets for the train set
-    :param X_validation (ndarray): Inputs for the validation set
-    :param y_validation (ndarray): Targets for the validation set
-
-    :return history: Training history
-    """
 
     earlystop_callback = tf.keras.callbacks.EarlyStopping(monitor="accuracy", min_delta=0.001, patience=patience)
 
@@ -138,11 +99,7 @@ def train(model, epochs, batch_size, patience, X_train, y_train, X_validation, y
 
 
 def plot_history(history):
-    """Plots accuracy/loss for training/validation set as a function of the epochs
 
-    :param history: Training history of model
-    :return:
-    """
 
     fig, axs = plt.subplots(2)
 
@@ -176,9 +133,8 @@ def main():
     history = train(model, EPOCHS, BATCH_SIZE, PATIENCE, X_train, y_train, X_validation, y_validation)
 
     # plot accuracy/loss for training/validation set as a function of the epochs
-    plot_history(history)
+    # plot_history(history)
 
-    # evaluate network on test set
     test_loss, test_acc = model.evaluate(X_test, y_test)
     print("\nTest loss: {}, test accuracy: {}".format(test_loss, 100*test_acc))
 
